@@ -1,0 +1,15 @@
+<p>reporte works!</p>
+
+
+<label> Dato dinamico del usuario actual </label>
+<label> {{ 'usuario actual: ' + usuarioActual }}  </label>
+<br>
+
+<label>  Reporte de los usuarios (ingrese fecha) </label>
+<input type='text' class="input-group-text" (keyup)="onKey($event)" >
+<button type='button' class="btn btn btn-dark" (click)="get_Data()">Update</button>
+<br>
+<label> {{ listaRegistroUsuario }}  </label>
+<label> ------------------------------------------- </label>
+<label> TOP 10 Realtime </label>
+<label> {{listaTop10Usuario}} </label>
