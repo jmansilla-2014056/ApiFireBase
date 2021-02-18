@@ -24,6 +24,10 @@ const rutas: Routes = [
   {
     path: 'reporte',
     component: ReporteComponent
+  },
+  {
+    path: 'coach',
+    component: CoachComponent
   }
 ];
 

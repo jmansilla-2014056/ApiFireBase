@@ -1,1 +1,22 @@
 <p>coach works!</p>
+
+<label>
+  usuario del entrenador
+</label>
+<label>
+  <input type='text'  id="entrenador" >
+</label>
+<label>
+  Apellido
+</label>
+<label>
+  <input type='text'  id="entrenado" >
+</label>
+
+<button (click)="ficharDeportista()"> Fichar </button>
+<button (click)="extraetfichajes()"> Actualizar Fichajes </button>
+
+<select id="lista" (change)="detalleUsuario()">
+  <option></option>
+  <option (click)="detalleUsuario()"  *ngFor="let obj of this.atletas" [value]="obj">{{obj}}</option>
+</select>

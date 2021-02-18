@@ -24,11 +24,12 @@ export class reportService{
   }
 
   async sincronizar(): Promise<void> {
-    await this.delay(100000);
+    console.log('wait');
+    await this.delay(1000);
   }
   // metodo que trae un arreglo de todos los registros del usuario, el reporte se basa en la fecha que se ingrese
   // tslint:disable-next-line:typedef
-  get_AllDataUser(fecha: string, user: string){
+  async get_AllDataUser(fecha: string, user: string){
     console.log('xxxx:' + fecha);
     if (fecha == null){
       this.datepipe = new DatePipe('en-US');
@@ -61,7 +62,7 @@ export class reportService{
 
   // Para llamar este metodo se debe primero invocar getAllUserData
   // tslint:disable-next-line:typedef
-  getTop10User(){
+  async getTop10User(){
       this.cambiosTop10 = this.cambiosRealTime.slice(Math.max(this.cambiosRealTime.length - 10, 0));
   }
 
@@ -69,7 +70,7 @@ export class reportService{
 
   // Get_Cambio cambia todo el tiempo la variable activo de tipo Activo
   // tslint:disable-next-line:typedef
-  get_Cambio(){
+  async get_Cambio(){
     return new Promise((resolve, reject) => {
       this.db.database.ref('activo/').on('value', (snapshot) => {
         const u = snapshot.val();
@@ -103,7 +104,7 @@ export class reportService{
   }
 
   // tslint:disable-next-line:typedef
-  delay(ms: number) {
+  async delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
   }
 
