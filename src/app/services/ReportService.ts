@@ -29,8 +29,7 @@ export class reportService{
   }
   // metodo que trae un arreglo de todos los registros del usuario, el reporte se basa en la fecha que se ingrese
   // tslint:disable-next-line:typedef
-  async get_AllDataUser(fecha: string, user: string){
-    console.log('xxxx:' + fecha);
+  async get_AllDataUser(fecha: string, user: string, limite: number){
     if (fecha == null){
       this.datepipe = new DatePipe('en-US');
       const date = new Date();
@@ -42,12 +41,11 @@ export class reportService{
     }
     this.cambiosRealTime = [];
     return new Promise((resolve, reject) => {
-      this.db.database.ref('reportes/' + user + '/' + fecha).on('value', (snapshot) => {
+      this.db.database.ref('reportes/' + user + '/' + fecha).limitToLast(limite).on('value', (snapshot) => {
         const temp = snapshot.val();
         resolve(snapshot.val());
         const StringJson = JSON.stringify(temp);
         const ObjectJson = JSON.parse(StringJson);
-
         for (const key in ObjectJson) {
           if (ObjectJson.hasOwnProperty(key)) {
             const nuevoRegistro = {} as Registro;
@@ -98,7 +96,7 @@ export class reportService{
     console.log('datastring' +  dateString);
     const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
     console.log('timestring' + timeString);
-    await this.db.database.ref('reportes/' + newActivo.user + '/' + dateString + '/').update({
+    this.db.database.ref('reportes/' + newActivo.user + '/' + dateString + '/').update({
       [timeString]: newActivo.envio
     });
   }
