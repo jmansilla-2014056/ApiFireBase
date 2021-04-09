@@ -66,7 +66,7 @@ export class RegistroComponent implements OnInit {
       const tempUserId = ( document.getElementById('key') as HTMLInputElement).value;
       const tempFecha = ( document.getElementById('fecha') as HTMLInputElement).value;
       this.db.database.ref('reportes/' + tempUserId + '/').on('value', (snapshot) => {
-          this.reportcontroller.get_AllDataUser(tempFecha.toString(), tempUserId.toString());
+          this.reportcontroller.get_AllDataUser(tempFecha.toString(), tempUserId.toString(), 10);
           this.realtimer = JSON.stringify(this.reportcontroller.cambiosRealTime);
           console.log(this.reportcontroller.cambiosRealTime);
       });

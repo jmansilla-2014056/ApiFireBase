@@ -44,7 +44,7 @@ export class CoachComponent implements OnInit {
   async detalleUsuario(){
     const deportista =  (document.getElementById('lista') as HTMLInputElement).value;
     console.log(deportista);
-    this.reportecontroller.get_AllDataUser(null, deportista);
+    this.reportecontroller.get_AllDataUser(null, deportista, 10);
     this.reportecontroller.getTop10User();
     this.reportecontroller.sincronizar();
     console.log('---------------------TODO----------------------');
