@@ -8,7 +8,7 @@ import { DatePipe } from '@angular/common';
 import {Registro} from '../model/Registro';
 import {Entranamiento} from '../model/Entranamiento';
 import {strict} from 'assert';
-import {Recorrido} from "../model/Recorrido";
+import {Recorrido} from '../model/Recorrido';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,7 @@ import {Recorrido} from "../model/Recorrido";
 // tslint:disable-next-line:class-name
 export class reportService{
   // cambiosRealTime
+  public fallo: number;
   public cambiosRealTime: Array<Registro>;
   public cambiosTop10: Array<Registro>;
   public reportEntramiento: Array<Entranamiento>;
@@ -97,31 +98,25 @@ export class reportService{
             const nuevoEntamiento = {} as Entranamiento;
             nuevoEntamiento.fechahora = key;
             nuevoEntamiento.recorridos = [];
-            const nuevoRecorrido = {} as Recorrido;
-            nuevoRecorrido.registros = [];
-            nuevoRecorrido.numeroRecorrido = 0;
             const HijoJson = JSON.parse(JSON.stringify(ObjectJson[key]));
             try {
               for (let i = 1; i < Object.keys(HijoJson).length + 1; i++){
-                const nuevoRegistro2 = {} as Registro;
-                const HijoJson2 = JSON.parse(JSON.stringify(HijoJson['-' + i]));
-                console.log('FFFFFFFFFFFF' + JSON.stringify(HijoJson2));
+                const nuevoRecorrido = {} as Recorrido;
+                nuevoRecorrido.registros = [];
+                nuevoRecorrido.numeroRecorrido = i;
+                const HijoJson2 = JSON.parse(JSON.stringify(HijoJson['+' + i]));
                 for (const key2 in HijoJson2){
+                  const nuevoRegistro2 = {} as Registro;
                   if (HijoJson2.hasOwnProperty(key2)) {
                     nuevoRegistro2.horaexacta = key2;
                     nuevoRegistro2.cadena = HijoJson2[key2];
-                    console.log('TODO CORRECTO0');
                     nuevoRecorrido.registros.push(nuevoRegistro2);
-                    console.log('TODO CORRECTO1');
                   }
                 }
-                console.log('TODO CORRECTO2');
-                nuevoRecorrido.numeroRecorrido = i;
                 nuevoEntamiento.recorridos.push(nuevoRecorrido);
-                console.log('TODO CORRECTO3');
               }
             }catch (e) {
-              console.log('ALVVVV');
+              console.log('Ocurrio un error');
             }
             this.reportEntramiento.push(nuevoEntamiento);
           }
@@ -186,12 +181,12 @@ export class reportService{
     // tslint:disable-next-line:variable-name
     const temp_envio = newActivo.envio;
     newActivo.envio = '{' + newActivo.envio + '}';
-    newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('R', '"R"');
+    newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('V', '"V"');
     let recorrido = '0';
     try{
       const ObjJson = JSON.parse(newActivo.envio);
-      recorrido = ObjJson['R'];
-      recorrido = '-' + recorrido;
+      recorrido = ObjJson['V'];
+      recorrido = '+' + recorrido;
     }catch (e) {
       console.log('Se encontro un dato basura');
     }
