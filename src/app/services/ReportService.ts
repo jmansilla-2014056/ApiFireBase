@@ -8,6 +8,7 @@ import { DatePipe } from '@angular/common';
 import {Registro} from '../model/Registro';
 import {Entranamiento} from '../model/Entranamiento';
 import {strict} from 'assert';
+import {Recorrido} from "../model/Recorrido";
 
 @Injectable({
   providedIn: 'root'
@@ -95,7 +96,33 @@ export class reportService{
           if (ObjectJson.hasOwnProperty(key)) {
             const nuevoEntamiento = {} as Entranamiento;
             nuevoEntamiento.fechahora = key;
-            nuevoEntamiento.recorridos = ObjectJson[key];
+            nuevoEntamiento.recorridos = [];
+            const nuevoRecorrido = {} as Recorrido;
+            nuevoRecorrido.registros = [];
+            nuevoRecorrido.numeroRecorrido = 0;
+            const HijoJson = JSON.parse(JSON.stringify(ObjectJson[key]));
+            try {
+              for (let i = 1; i < Object.keys(HijoJson).length + 1; i++){
+                const nuevoRegistro2 = {} as Registro;
+                const HijoJson2 = JSON.parse(JSON.stringify(HijoJson['-' + i]));
+                console.log('FFFFFFFFFFFF' + JSON.stringify(HijoJson2));
+                for (const key2 in HijoJson2){
+                  if (HijoJson2.hasOwnProperty(key2)) {
+                    nuevoRegistro2.horaexacta = key2;
+                    nuevoRegistro2.cadena = HijoJson2[key2];
+                    console.log('TODO CORRECTO0');
+                    nuevoRecorrido.registros.push(nuevoRegistro2);
+                    console.log('TODO CORRECTO1');
+                  }
+                }
+                console.log('TODO CORRECTO2');
+                nuevoRecorrido.numeroRecorrido = i;
+                nuevoEntamiento.recorridos.push(nuevoRecorrido);
+                console.log('TODO CORRECTO3');
+              }
+            }catch (e) {
+              console.log('ALVVVV');
+            }
             this.reportEntramiento.push(nuevoEntamiento);
           }
         }
@@ -164,6 +191,7 @@ export class reportService{
     try{
       const ObjJson = JSON.parse(newActivo.envio);
       recorrido = ObjJson['R'];
+      recorrido = '-' + recorrido;
     }catch (e) {
       console.log('Se encontro un dato basura');
     }

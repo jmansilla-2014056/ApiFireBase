@@ -1,6 +1,6 @@
 import {Registro} from './Registro';
 
 export interface Recorrido{
-  numeroRecorrido?: string;
+  numeroRecorrido?: number;
   registros?: Array<Registro>;
 }
