@@ -181,8 +181,9 @@ export class reportService{
     // tslint:disable-next-line:variable-name
     const temp_envio = newActivo.envio;
     newActivo.envio = '{' + newActivo.envio + '}';
-    newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('V', '"V"');
-    let recorrido = '0';
+    newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('V', '"V"').replace('T', '"T"')
+      .replace('B', '"B"').replace('M', '"M"');
+    let recorrido = '+0';
     try{
       const ObjJson = JSON.parse(newActivo.envio);
       recorrido = ObjJson['V'];
