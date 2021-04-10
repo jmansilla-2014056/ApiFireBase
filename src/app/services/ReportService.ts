@@ -31,7 +31,7 @@ export class reportService{
   constructor(private db: AngularFireDatabase) {
     const fecha = new Date();
     const date = this.datepipe.transform(fecha, 'yyyy-MM-dd');
-    const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
+    const timeString = this.datepipe.transform(fecha, 'hh-mm');
     this.fechayhoraInicio = date + '-' + timeString;
   }
 
@@ -100,11 +100,12 @@ export class reportService{
             nuevoEntamiento.recorridos = [];
             const HijoJson = JSON.parse(JSON.stringify(ObjectJson[key]));
             try {
-              for (let i = 1; i < Object.keys(HijoJson).length + 1; i++){
+              for (let i = 0; i < Object.keys(HijoJson).length + 1; i++){
                 const nuevoRecorrido = {} as Recorrido;
                 nuevoRecorrido.registros = [];
-                nuevoRecorrido.numeroRecorrido = i;
-                const HijoJson2 = JSON.parse(JSON.stringify(HijoJson['+' + i]));
+                nuevoRecorrido.numeroRecorrido = Number(Object.keys(HijoJson)[i]);
+                const HijoJson2 = JSON.parse(JSON.stringify(HijoJson[Object.keys(HijoJson)[i]]));
+                // tslint:disable-next-line:forin
                 for (const key2 in HijoJson2){
                   const nuevoRegistro2 = {} as Registro;
                   if (HijoJson2.hasOwnProperty(key2)) {
@@ -183,17 +184,19 @@ export class reportService{
     newActivo.envio = '{' + newActivo.envio + '}';
     newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('V', '"V"').replace('T', '"T"')
       .replace('B', '"B"').replace('M', '"M"');
-    let recorrido = '+0';
+    let recorrido = '0';
     try{
       const ObjJson = JSON.parse(newActivo.envio);
       recorrido = ObjJson['V'];
-      recorrido = '+' + recorrido;
+      if (typeof recorrido !== undefined && typeof  recorrido !== 'undefined' && typeof recorrido != null && recorrido !== '0'){
+        this.db.database.ref('reportes2/' + newActivo.user + '/' + dateString + '/' + this.fechayhoraInicio + '/' + '+' + recorrido).update(
+          {
+          [timeString]: temp_envio
+        });
+      }
     }catch (e) {
       console.log('Se encontro un dato basura');
     }
-    this.db.database.ref('reportes2/' + newActivo.user + '/' + dateString + '/' + this.fechayhoraInicio + '/' + recorrido).update({
-      [timeString]: temp_envio
-    });
   }
 
   // tslint:disable-next-line:typedef
