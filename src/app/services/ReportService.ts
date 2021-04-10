@@ -193,9 +193,8 @@ export class reportService{
     this.datepipe = new DatePipe('en-US');
     const fecha = new Date();
     const dateString = this.datepipe.transform(fecha, 'yyyy-MM-dd');
+    const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
     console.log('datastring' +  dateString);
-    const timeString = this.datepipe.transform(fecha, 'hh-mm');
-    console.log('timestring' + timeString);
     // tslint:disable-next-line:variable-name
     const temp_envio = newActivo.envio;
     newActivo.envio = '{' + newActivo.envio + '}';
@@ -206,9 +205,9 @@ export class reportService{
       const ObjJson = JSON.parse(newActivo.envio);
       recorrido = ObjJson['V'];
       if (typeof recorrido !== undefined && typeof  recorrido !== 'undefined' && typeof recorrido != null && recorrido !== '0'){
-        this.db.database.ref('reportes2/' + newActivo.user + '/' + dateString + '/' + this.fechayhoraInicio + '/' + '+' + recorrido).update(
+      this.db.database.ref('reportes2/' + newActivo.user + '/' + dateString + '/' + this.fechayhoraInicio + '/' + '+' + recorrido).update(
           {
-          [timeString]: temp_envio
+          [timeString]: temp_envio.replace('{', '').replace('}', '')
         });
       }
     }catch (e) {
