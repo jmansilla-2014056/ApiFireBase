@@ -181,14 +181,11 @@ export class reportService{
       const d = ObjJson['B'];
       const e = ObjJson['M'];
       const f = ObjJson['T'];
-      const x = a + b + c + d + e + f;
-      if (!x.includes('undefined')){
-        this.db.database.ref('reportes/' + newActivo.user + '/' + dateString).update({
-          [timeString]: temp_envio
-        });
-      }
+      this.db.database.ref('reportes/' + newActivo.user + '/' + dateString).update({
+        [timeString]: temp_envio
+      });
     }catch (e){
-      console.log('Datos basura');
+      console.log('Datos basura CADENA INVALIDA');
     }
   }
 
