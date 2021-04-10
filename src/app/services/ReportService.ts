@@ -167,9 +167,29 @@ export class reportService{
     console.log('datastring' +  dateString);
     const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
     console.log('timestring' + timeString);
-    this.db.database.ref('reportes/' + newActivo.user + '/' + dateString).update({
-      [timeString]: newActivo.envio
-    });
+
+    // Cambios
+    const temp_envio = newActivo.envio;
+    newActivo.envio = '{' + newActivo.envio + '}';
+    newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('V', '"V"').replace('T', '"T"')
+      .replace('B', '"B"').replace('M', '"M"');
+    try{
+      const ObjJson = JSON.parse(newActivo.envio);
+      const a = ObjJson['V'];
+      const b = ObjJson['P'];
+      const c = ObjJson['S'];
+      const d = ObjJson['B'];
+      const e = ObjJson['M'];
+      const f = ObjJson['T'];
+      const x = a + b + c + d + e + f;
+      if (!x.includes('undefined')){
+        this.db.database.ref('reportes/' + newActivo.user + '/' + dateString).update({
+          [timeString]: temp_envio
+        });
+      }
+    }catch (e){
+      console.log('Datos basura');
+    }
   }
 
   async insertOnRecorrido(newActivo: Activo): Promise<void>{
@@ -177,7 +197,7 @@ export class reportService{
     const fecha = new Date();
     const dateString = this.datepipe.transform(fecha, 'yyyy-MM-dd');
     console.log('datastring' +  dateString);
-    const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
+    const timeString = this.datepipe.transform(fecha, 'hh-mm');
     console.log('timestring' + timeString);
     // tslint:disable-next-line:variable-name
     const temp_envio = newActivo.envio;
