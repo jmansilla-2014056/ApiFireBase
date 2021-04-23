@@ -6,9 +6,8 @@ import {map} from 'rxjs/operators';
 import {Activo} from '../model/Activo';
 import { DatePipe } from '@angular/common';
 import {Registro} from '../model/Registro';
-import {Entranamiento} from '../model/Entranamiento';
+import {Prueba} from '../model/Prueba';
 import {strict} from 'assert';
-import {Recorrido} from '../model/Recorrido';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +20,7 @@ export class reportService{
   public fallo: number;
   public cambiosRealTime: Array<Registro>;
   public cambiosTop10: Array<Registro>;
-  public reportEntramiento: Array<Entranamiento>;
+  public reportPrueba: Array<Prueba>;
   public saveKeys: Array<string>;
   // La variable activo contiene siempre el usuario activo, su pulsacion, oxigino y tiempo
   public activo: Activo = {  envio: '', fecha: '', user: ''};
@@ -31,7 +30,7 @@ export class reportService{
   constructor(private db: AngularFireDatabase) {
     const fecha = new Date();
     const date = this.datepipe.transform(fecha, 'yyyy-MM-dd');
-    const timeString = this.datepipe.transform(fecha, 'hh-mm');
+    const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
     this.fechayhoraInicio = date + '-' + timeString;
   }
 
@@ -46,7 +45,6 @@ export class reportService{
       this.datepipe = new DatePipe('en-US');
       const date = new Date();
       fecha = this.datepipe.transform(date, 'yyyy-MM-dd');
-      // console.log('entre:' + fecha);
     }
     if (user === null){
       user = this.activo.user;
@@ -74,17 +72,16 @@ export class reportService{
   }
 
   // tslint:disable-next-line:typedef
-  async get_AllDataEntranamiento(fecha: string, user: string){
+  async get_AllDataPrueba(fecha: string, user: string){
     if (fecha == null){
       this.datepipe = new DatePipe('en-US');
       const date = new Date();
       fecha = this.datepipe.transform(date, 'yyyy-MM-dd');
-      console.log('entre:' + fecha);
     }
     if (user === null){
       user = this.activo.user;
     }
-    this.reportEntramiento = [];
+    this.reportPrueba = [];
     this.saveKeys = [];
 
     return new Promise((resolve, reject) => {
@@ -94,33 +91,24 @@ export class reportService{
         const StringJson = JSON.stringify(temp);
         const ObjectJson = JSON.parse(StringJson);
         for (const key in ObjectJson) {
+          const nuevoPrueba = {} as Prueba;
           if (ObjectJson.hasOwnProperty(key)) {
-            const nuevoEntamiento = {} as Entranamiento;
-            nuevoEntamiento.fechahora = key;
-            nuevoEntamiento.recorridos = [];
+            nuevoPrueba.fechahora = key;
+            nuevoPrueba.registros = [];
             const HijoJson = JSON.parse(JSON.stringify(ObjectJson[key]));
             try {
-              for (let i = 0; i < Object.keys(HijoJson).length + 1; i++){
-                const nuevoRecorrido = {} as Recorrido;
-                nuevoRecorrido.registros = [];
-                nuevoRecorrido.numeroRecorrido = Number(Object.keys(HijoJson)[i]);
-                const HijoJson2 = JSON.parse(JSON.stringify(HijoJson[Object.keys(HijoJson)[i]]));
+              for (let i = 0; i < Object.keys(HijoJson).length; i++){
+                const registro = {} as Registro;
+                registro.horaexacta = Object.keys(HijoJson)[i];
+                registro.cadena = HijoJson[Object.keys(HijoJson)[i]];
+                nuevoPrueba.registros.push(registro);
                 // tslint:disable-next-line:forin
-                for (const key2 in HijoJson2){
-                  const nuevoRegistro2 = {} as Registro;
-                  if (HijoJson2.hasOwnProperty(key2)) {
-                    nuevoRegistro2.horaexacta = key2;
-                    nuevoRegistro2.cadena = HijoJson2[key2];
-                    nuevoRecorrido.registros.push(nuevoRegistro2);
-                  }
                 }
-                nuevoEntamiento.recorridos.push(nuevoRecorrido);
-              }
             }catch (e) {
               console.log('Ocurrio un error');
             }
-            this.reportEntramiento.push(nuevoEntamiento);
           }
+          this.reportPrueba.push(nuevoPrueba);
         }
       });
     });
@@ -149,7 +137,7 @@ export class reportService{
           this.activo.user = this.activo.user.replace('"', '').replace('"', '').replace(' ', '');
           this.activo.envio = this.activo.envio.replace('"', '').replace('"', '').replace(' ', '');
           this.insertOnReport(this.activo);
-          this.insertOnRecorrido(this.activo);
+          this.insertOnPrueba(this.activo);
         }
         try {
           this.getTop10User();
@@ -167,50 +155,39 @@ export class reportService{
     console.log('datastring' +  dateString);
     const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
     console.log('timestring' + timeString);
-
-    // Cambios
-    const temp_envio = newActivo.envio;
-    newActivo.envio = '{' + newActivo.envio + '}';
-    newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('V', '"V"').replace('T', '"T"')
-      .replace('B', '"B"').replace('M', '"M"');
+    // tslint:disable-next-line:variable-name
+    let temp_envio = '{' + newActivo.envio  + '}';
+    temp_envio = temp_envio.replace('O', '"O"').replace('V', '"V"').replace('B', '"B"');
     try{
-      const ObjJson = JSON.parse(newActivo.envio);
-      const a = ObjJson['V'];
-      const b = ObjJson['P'];
-      const c = ObjJson['S'];
-      const d = ObjJson['B'];
-      const e = ObjJson['M'];
-      const f = ObjJson['T'];
-      this.db.database.ref('reportes/' + newActivo.user + '/' + dateString).update({
-        [timeString]: temp_envio
-      });
+      const ObjJson = JSON.parse(temp_envio);
+      if (ObjJson instanceof Object) {
+        this.db.database.ref('reportes/' + newActivo.user + '/' + dateString).update({
+          [timeString]: newActivo.envio
+        });
+      }
     }catch (e){
       console.log('Datos basura CADENA INVALIDA');
     }
   }
 
-  async insertOnRecorrido(newActivo: Activo): Promise<void>{
+  async insertOnPrueba(newActivo: Activo): Promise<void>{
     this.datepipe = new DatePipe('en-US');
     const fecha = new Date();
     const dateString = this.datepipe.transform(fecha, 'yyyy-MM-dd');
     const timeString = this.datepipe.transform(fecha, 'hh-mm-ss');
     console.log('datastring' +  dateString);
     // tslint:disable-next-line:variable-name
-    const temp_envio = newActivo.envio;
-    newActivo.envio = '{' + newActivo.envio + '}';
-    newActivo.envio = newActivo.envio.replace('P', '"P"').replace('S', '"S"').replace('V', '"V"').replace('T', '"T"')
-      .replace('B', '"B"').replace('M', '"M"');
-    let recorrido = '0';
-    try{
-      const ObjJson = JSON.parse(newActivo.envio);
-      recorrido = ObjJson['V'];
-      if (typeof recorrido !== undefined && typeof  recorrido !== 'undefined' && typeof recorrido != null && recorrido !== '0'){
-      this.db.database.ref('reportes2/' + newActivo.user + '/' + dateString + '/' + this.fechayhoraInicio + '/' + '+' + recorrido).update(
+    let temp_envio = '{' + newActivo.envio  + '}';
+    temp_envio = temp_envio.replace('O', '"O"').replace('V', '"V"').replace('B', '"B"');
+    try {
+      const ObjJson = JSON.parse(temp_envio);
+      if (ObjJson instanceof Object) {
+        this.db.database.ref('reportes2/' + newActivo.user + '/' + dateString + '/' + this.fechayhoraInicio).update(
           {
-          [timeString]: temp_envio.replace('{', '').replace('}', '')
-        });
+            [timeString]: newActivo.envio
+          });
       }
-    }catch (e) {
+    }catch (e){
       console.log('Se encontro un dato basura');
     }
   }

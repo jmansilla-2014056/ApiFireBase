@@ -1,6 +1,6 @@
 import {Registro} from './Registro';
 
-export interface Recorrido{
-  numeroRecorrido?: number;
+export interface Prueba{
+  fechahora?: string;
   registros?: Array<Registro>;
 }

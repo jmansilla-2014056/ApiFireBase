@@ -41,17 +41,17 @@ export class ReporteComponent implements OnInit {
     this.reportcotroller.get_Cambio();
     // si la caja donde se ingresa la fecha esta null se asume que es la fecha de hoy.
     this.reportcotroller.get_AllDataUser(this.fecha, null, 10);
-    this.reportcotroller.get_AllDataEntranamiento(this.fecha, null);
+    this.reportcotroller.get_AllDataPrueba(this.fecha, null);
     this.usuarioActual = JSON.stringify(this.reportcotroller.activo as Activo);
     this.listaRegistroUsuario = JSON.stringify(this.reportcotroller.cambiosRealTime);
     this.listaTop10Usuario = JSON.stringify(this.reportcotroller.cambiosTop10);
-    this.listaEntramientos = JSON.stringify(this.reportcotroller.reportEntramiento);
+    this.listaEntramientos = JSON.stringify(this.reportcotroller.reportPrueba);
     console.log('-----------Reporte-----------');
     console.log(this.reportcotroller.cambiosRealTime);
     console.log('-----------Top 10------------');
     console.log(this.reportcotroller.cambiosTop10);
-    console.log('----------Entranamiento / Recorrido ----------');
-    console.log(this.reportcotroller.reportEntramiento);
+    console.log('----------Prueba / Recorrido ----------');
+    console.log(this.reportcotroller.reportPrueba);
     this.router.navigate(['/reporte']);
 
   }
